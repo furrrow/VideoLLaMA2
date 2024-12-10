@@ -56,3 +56,10 @@ work_dirs*/
 pretrained/
 publish_models/
 public_models/
+/videollama2/eval/videochatgpt_gen/Test_Human_Annotated_Captions/
+/videollama2/eval/videochatgpt_gen/Test_Videos/
+/videollama2/eval/perception_test_mcqa/videos/
+/videollama2/eval/videochatgpt_gen/Benchmarking_QA.zip
+/videollama2/eval/videochatgpt_gen/Test_Human_Annotated_Captions.zip
+/videollama2/eval/videochatgpt_gen/Test_Videos.zip
+/videollama2/eval/videochatgpt_gen/Test_Videos_old.zip
