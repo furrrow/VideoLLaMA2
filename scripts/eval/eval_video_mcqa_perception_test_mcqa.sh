@@ -1,6 +1,6 @@
 set -x
 
-EVAL_DATA_DIR=eval
+EVAL_DATA_DIR=videollama2/eval
 OUTPUT_DIR=eval_output
 CKPT=DAMO-NLP-SG/VideoLLaMA2.1-7B-16F
 CKPT_NAME=$(echo $CKPT | rev | cut -d'/' -f1 | rev)
@@ -20,7 +20,7 @@ if [ ! -f "$output_file" ]; then
         gpu_devices=$(IFS=,; echo "${GPULIST[*]:$(($IDX*$GPUS_PER_TASK)):$GPUS_PER_TASK}")    
         TRANSFORMERS_OFFLINE=1 CUDA_VISIBLE_DEVICES=${gpu_devices} python3 videollama2/eval/inference_video_mcqa_perception_test_mcqa.py \
             --model-path ${CKPT} \
-            --video-folder ${EVAL_DATA_DIR}/perception_test_mcqa/videos \
+            --video-folder /home/jim/Documents/Projects/perception_test/baselines/data/videos \
             --question-file ${EVAL_DATA_DIR}/perception_test_mcqa/mc_question_test.json \
             --answer-file ${OUTPUT_DIR}/perception_test_mcqa/answers/${CKPT_NAME}/${CHUNKS}_${IDX}.json \
             --num-chunks $CHUNKS \

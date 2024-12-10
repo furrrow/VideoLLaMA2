@@ -54,6 +54,7 @@ class PerceptionTestMCQADataset(Dataset):
         instructs = []
         qids = []
         ops = []
+        ans = []
         for q in mc_questions:
             question = q['question']
             qid = q['id']
@@ -63,6 +64,7 @@ class PerceptionTestMCQADataset(Dataset):
             instructs.append(instruct)
             qids.append(qid)
             ops.append(options)
+            ans.append(q['answer_id'])
 
         return {
             'video': video_tensor,
@@ -70,6 +72,7 @@ class PerceptionTestMCQADataset(Dataset):
             'instructs': instructs,
             'question_ids': qids,
             'options': ops,
+            'answer': ans,
         }
 
 
@@ -101,7 +104,7 @@ def run_inference(args):
     ans_file = open(answer_file, "w")
 
     # Iterate over each sample in the ground truth file
-    for i, (video_tensor, video_id, instructs, question_ids, options) in enumerate(tqdm(dataloader)):
+    for i, (video_tensor, video_id, instructs, question_ids, options, true_ans) in enumerate(tqdm(dataloader)):
 
         # reduce batch dimension
         video_tensor = video_tensor[0]
@@ -144,7 +147,8 @@ def run_inference(args):
                 else:
                     pred_idx = 2
 
-            qas.append({'id': question_id, 'answer_id': pred_idx, 'answer': _options[pred_idx]})
+            qas.append({'id': question_id, 'answer_id': pred_idx, 'answer': _options[pred_idx], 'answer_text': output,
+                        'true_answer': true_ans, "correct": pred_idx == true_ans})
 
         ans_file.write('\"{}\": {},\n'.format(video_id, json.dumps(qas)))
 

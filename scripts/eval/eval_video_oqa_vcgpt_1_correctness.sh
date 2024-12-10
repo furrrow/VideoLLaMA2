@@ -1,6 +1,6 @@
 set -x
 
-EVAL_DATA_DIR=eval
+EVAL_DATA_DIR=videollama2/eval
 OUTPUT_DIR=eval_output
 CKPT=DAMO-NLP-SG/VideoLLaMA2.1-7B-16F
 CKPT_NAME=$(echo $CKPT | rev | cut -d'/' -f1 | rev)
