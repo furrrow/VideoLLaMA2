@@ -63,3 +63,5 @@ public_models/
 /videollama2/eval/videochatgpt_gen/Test_Human_Annotated_Captions.zip
 /videollama2/eval/videochatgpt_gen/Test_Videos.zip
 /videollama2/eval/videochatgpt_gen/Test_Videos_old.zip
+
+sample_images/*
