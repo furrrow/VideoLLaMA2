@@ -22,9 +22,11 @@ model = genai.GenerativeModel(model_name="gemini-2.0-flash-exp")
 
 image_path_1 = "./sample_images/Iribe_red_01.png"
 image_path_2 = "./sample_images/Iribe_red_02.png"
+image_path_3 = "./sample_images/annotated_img_000253.png"
 
 sample_file_1 = PIL.Image.open(image_path_1)
 sample_file_2 = PIL.Image.open(image_path_2)
+sample_file_3 = PIL.Image.open(image_path_3)
 
 prompt = ("Forget History. Consider the following two images of two probable paths of a robot. "
           "Consider that all dynamic obstacles will keep moving in the same direction. "
@@ -34,6 +36,11 @@ prompt = ("Forget History. Consider the following two images of two probable pat
           "prioritizing avoiding obstacles and staying in the lane. Is there any difference between "
           "Image 1 and Image 2 in terms of achieving the goal ?")
 
-response = model.generate_content([prompt, sample_file_1, sample_file_2])
+prompt2 = ("Forget History. You are a robot exploring an indoor environment. There are many static obstacles and "
+           "dynamic obstacles such as people. you must avoid the obstacles while exploring the rest of the building."
+           "given the three colored paths, which one should you pick and why? let\'s consider this step by step")
+
+# response = model.generate_content([prompt, sample_file_1, sample_file_2])
+response = model.generate_content([prompt2, sample_file_3])
 
 print(response.text)
