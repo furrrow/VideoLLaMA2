@@ -1,13 +1,14 @@
-import sys
-
-from torch.fx.proxy import orig_method_name
-
-sys.path.append('./')
-from videollama2 import model_init, mm_infer
-from videollama2.utils import disable_torch_init
+import torch
+from transformers import AutoModelForCausalLM, AutoProcessor, AutoModel, AutoImageProcessor
 import time
+from PIL import Image
 
 """
+DOESN"T WORK, runs into error... :(
+KeyError: 'image'
+
+requires ffmpeg
+
 RESULTS:
 
 prompt_a + annotated image:
@@ -66,15 +67,7 @@ avoid potential hazards while still reaching the other side of the building.
 """
 
 def inference():
-    disable_torch_init()
-
-    # Video Inference
-    # modal = 'video'
-    # modal_path = 'assets/cat_and_chicken.mp4'
-    # instruct = 'What animals are in the video, what are they doing, and how does the video feel?'
-
     # Image Inference
-    modal = 'image'
     original_img = '/home/jim/Downloads/original_img.png'
     annotated_img = '/home/jim/Downloads/annotated_img_000253.png'
     prompt_A = ('I want to go to the other side of the building. I also want to avoid people and obstacles. '
@@ -104,26 +97,53 @@ def inference():
 
 
     instruct = prompt_E
-    modal_path = original_img
-    # model_path = 'DAMO-NLP-SG/VideoLLaMA2-7B'
-    # model_path = 'DAMO-NLP-SG/VideoLLaMA2-7B-16F'
-    model_path = 'DAMO-NLP-SG/VideoLLaMA3-7B'
-    # model_path = 'DAMO-NLP-SG/VideoLLaMA3-7B-Image'
-    # model_path = 'DAMO-NLP-SG/VL3-SigLIP-NaViT'
-    model, processor, tokenizer = model_init(model_path)
-    infer_time = time.time()
+    image_path = original_img
+    # model_name = "DAMO-NLP-SG/VideoLLaMA3-7B"
+    model_name = 'DAMO-NLP-SG/VideoLLaMA3-7B-Image'
+    # model_name = 'DAMO-NLP-SG/VL3-SigLIP-NaViT'
 
-    # output = mm_infer(processor[modal](modal_path), instruct, model=model, tokenizer=tokenizer, do_sample=False,
-    #                   modal=modal)
-    # output = mm_infer(processor[modal](modal_path), instruct, model=model, tokenizer=tokenizer, do_sample=False,
-    #                   modal=modal)
-    # output = mm_infer(processor[modal](modal_path), instruct, model=model, tokenizer=tokenizer, do_sample=False,
-    #                   modal=modal)
-    # output = mm_infer(processor[modal](modal_path), instruct, model=model, tokenizer=tokenizer, do_sample=False,
-    #                   modal=modal)
-    output = mm_infer(processor[modal](modal_path), instruct, model=model, tokenizer=tokenizer, do_sample=False,
-                      modal=modal)
-    print(output)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        trust_remote_code=True,
+        device_map="auto",
+        torch_dtype=torch.bfloat16,
+        attn_implementation="flash_attention_2",
+    )
+    processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
+    image = Image.open(image_path)
+    # Video conversation
+    video_conversation = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {
+            "role": "user",
+            "content": [
+                {"type": "video", "data": {
+                    "video_path": "https://github.com/DAMO-NLP-SG/VideoLLaMA3/raw/refs/heads/main/assets/cat_and_chicken.mp4",
+                    "fps": 1, "max_frames": 128}},
+                {"type": "text", "data": "What is the cat doing?"},
+            ]
+        },
+    ]
+    image_conversation = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "image", "data": {
+                    "image_path": "https://github.com/DAMO-NLP-SG/VideoLLaMA3/blob/main/assets/sora.png?raw=true"}},
+                {"type": "text", "data": "What is the woman wearing?"},
+            ]
+         }
+    ]
+
+    infer_time = time.time()
+    # text_prompt = processor.apply_chat_template(image_conversation, add_generation_prompt=True)
+    inputs = processor(conversation=image_conversation, return_tensors="pt")
+    inputs = {k: v.cuda() if isinstance(v, torch.Tensor) else v for k, v in inputs.items()}
+    if "pixel_values" in inputs:
+        inputs["pixel_values"] = inputs["pixel_values"].to(torch.bfloat16)
+    output_ids = model.generate(**inputs, max_new_tokens=128)
+    response = processor.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
+    print(response)
     print("--- inference time: %s seconds ---" % (time.time() - infer_time))
 
 

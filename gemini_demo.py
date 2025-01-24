@@ -27,7 +27,8 @@ model = genai.GenerativeModel(model_name=model_name)
 
 image_path_1 = "./sample_images/path_1.png"
 image_path_2 = "./sample_images/path_2.png"
-image_path_3 = "./sample_images/annotated_img_000253.png"
+# image_path_3 = "./sample_images/annotated_img_000253.png"
+image_path_3 = "./screenshot_1.png"
 
 sample_file_1 = PIL.Image.open(image_path_1)
 sample_file_2 = PIL.Image.open(image_path_2)
@@ -56,12 +57,12 @@ prompt3 = ("""Forget History. Consider the following two images, each depicting 
 
 
 print(f"this is the response using {model_name}")
-response = model.generate_content([prompt3, sample_file_1, sample_file_2])
-# response = model.generate_content([prompt2, sample_file_3])
+# response = model.generate_content([prompt3, sample_file_1, sample_file_2])
+response = model.generate_content([prompt2, sample_file_3])
 print(f"initial response:"
       f"{response.text}")
 second_prompt = (f"{response}"
-                 # f"please give your selection of the preferred path A, B, C or indeterminate in the format *Answer:* <option_key>")
-                 f"please give your selection of the preferred path A, B or indeterminate in the format *Answer:* <option_key>")
+                 f"please give your selection of the preferred path A, B, C or indeterminate in the format *Answer:* <option_key>")
+                 # f"please give your selection of the preferred path A, B or indeterminate in the format *Answer:* <option_key>")
 response = model.generate_content([second_prompt])
 print(response.text)
