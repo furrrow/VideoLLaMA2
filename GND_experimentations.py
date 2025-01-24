@@ -31,7 +31,10 @@ class Config:
     cuda: bool = True
 
     # transparency param for trajectory overlay to original image
-    alpha: int = 0
+    alpha: int = 0.5
+
+    # sleep timer to not overuse the free rate limit!!
+    sleep_timer: int = 15
 
     # save display?
     display: bool = False
@@ -123,9 +126,12 @@ def main(config: Config):
                 cv2.waitKey(0)
                 cv2.destroyAllWindows()
             if config.save_figs:
-                savename = f"{save_folder}/img1_{mode}.png"
-                cv2.imwrite(savename, image_1)
-                if not same_image:
+                if same_image:
+                    savename = f"{save_folder}/img1_combined_{mode}.png"
+                    cv2.imwrite(savename, image_1)
+                else:
+                    savename = f"{save_folder}/img1_{mode}.png"
+                    cv2.imwrite(savename, image_1)
                     savename = f"{save_folder}/img2_{mode}.png"
                     cv2.imwrite(savename, image_2)
 
@@ -144,9 +150,10 @@ def main(config: Config):
                 "answer_selection": answer_selection.text,
             }
             print(f"{image_name}, {same_image}, {mode}, {answer_selection.text}")
-            time.sleep(15)
-        with open(f"{save_folder}/meta.json", "w") as outfile:
-            outfile.write(json.dumps(meta_dict, indent=4))
+            with open(f"{save_folder}/meta.json", "w") as outfile:
+                outfile.write(json.dumps(meta_dict, indent=4))
+            time.sleep(config.sleep_timer)
+
 
 
 
