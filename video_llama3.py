@@ -94,9 +94,11 @@ def inference():
                 'path B coordinates: [[460 533], [440 447], [420 403], [399 378]]'  # original C
                 'path C coordinates: [[480 533], [480 445], [480 401], [480 375]]'  # original B
                 'Given the three paths A, B and C, which path should I take and why? let\'s think step-by-step')
+    demo_prompt = ('I want to go to the other side of the building. I also want to avoid people and obstacles. '
+                'First, describe what is in the image.'
+                'Next what should I do in order to get to the 5th floor?')
 
-
-    instruct = prompt_E
+    instruct = demo_prompt
     image_path = original_img
     # model_name = "DAMO-NLP-SG/VideoLLaMA3-7B"
     model_name = 'DAMO-NLP-SG/VideoLLaMA3-7B-Image'
